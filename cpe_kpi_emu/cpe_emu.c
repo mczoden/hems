@@ -9,7 +9,6 @@
 #include <semaphore.h>
 #include <signal.h>
 
-
 #include <curl/curl.h>
 
 #define KPI_CONTENT_FILE "kpi"
