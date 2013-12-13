@@ -1,0 +1,18 @@
+2013-12-13 v1.0.0.2:	Git Rev ??
+	* main.c:	Redesign program logic, 3 thread.
+				Depatch kpi generation and kpi upload to child modules.
+				Add parameter parser.
+				Sleep 1s to wait pthread be canceled, remove leak of mem.
+	* main.h:	Global config struct -> const context and pass to child modules.
+	* gen.c:	Porting from main.c.
+				Modify filename rule and some content of kpi.
+	* gen.h:	Initial version.
+	* uld.c:	Porting from main.c.
+				Find kpi in current directory and upload.
+	* uld.h:	Initial version.
+	* dbg.c:	Porting form main.c.
+	* dbg.h:	Initial version.
+
+2013-12-11 v0.0.0.1:	Git Rev 849efdc9b6
+	* main.c:	Initial version.
+	* Makefile:	Initial version.

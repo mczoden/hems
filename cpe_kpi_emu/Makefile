@@ -1,7 +1,9 @@
 CC = gcc
 BIN = cpe_kpi_emu
-OBJS = main.o
-CFLAGS += -Wall
+OBJS =  main.o gen.o uld.o dbg.o
+CFLAGS += -Wall -Werror
+CFLAGS += -g
+#CFLAGS += -O3
 LIBS += -lcurl -lpthread
 
 all: $(BIN)
