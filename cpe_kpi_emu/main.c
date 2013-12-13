@@ -208,8 +208,8 @@ static void *gen_thread_hdl(void *arg)
 int main(int argc, char *argv[])
 {
     cpe_kpi_emu_ctx_t ctx = { 0 };
-    time_t t_now = 0;
     pthread_attr_t attr;
+    bool has_gen = false;
 
     if (parser_para(&ctx, argc, argv) != 0) {
         DBG_PNC("Parser parameters failed, exit!");
@@ -251,11 +251,15 @@ int main(int argc, char *argv[])
     signal(SIGTERM, sig_hdl);
 
     while (1) {
-        t_now = time(NULL);
-        if ((t_now - ctx.t_uld_time) % ctx.uld_intval == 0) {
-            pthread_mutex_unlock(&mtx_gen);
+        if ((time(NULL) - ctx.t_uld_time) % ctx.uld_intval == 0) {
+            if (!has_gen) {
+                pthread_mutex_unlock(&mtx_gen);
+                has_gen = true;
+            }
+        } else {
+            has_gen = false;
         }
-        sleep(1);
+        usleep(100000);
     }
 
     return 0;

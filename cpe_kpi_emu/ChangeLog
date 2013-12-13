@@ -1,4 +1,7 @@
-2013-12-13 v1.0.0.2:	Git Rev ??
+2013-12-13 v1.0.1.3:
+	* main.c:	Optimize delay mechanism.
+
+2013-12-13 v1.0.0.2:
 	* main.c:	Redesign program logic, 3 thread.
 				Depatch kpi generation and kpi upload to child modules.
 				Add parameter parser.
@@ -13,6 +16,6 @@
 	* dbg.c:	Porting form main.c.
 	* dbg.h:	Initial version.
 
-2013-12-11 v0.0.0.1:	Git Rev 849efdc9b6
+2013-12-11 v0.0.0.1:
 	* main.c:	Initial version.
 	* Makefile:	Initial version.
