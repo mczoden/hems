@@ -47,6 +47,7 @@ int gen(const cpe_kpi_emu_ctx_t *ctx)
         t_beg = t_end;
         return -1;
     }
+    DBG_DBG("Create kpi file: %s.", filename);
 
     fprintf(fp, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     fprintf(fp, "<?xml-stylesheet type=\"text/xsl\" href=\"MeasDataCollection.xsl\"?>\n");
@@ -69,7 +70,7 @@ int gen(const cpe_kpi_emu_ctx_t *ctx)
     fprintf(fp, "<managedElement userLabel=\"LTE_Femto\"/>\n");
     fprintf(fp, "<measInfo>\n");
     fprintf(fp, "<granPeriod duration=\"PT%dS\" endTime=\"%04d-%02d-%02dT%02d:%02d:%02d%+03d:%02d\"/>\n",
-            ctx->uld_intval,
+            ctx->interval,
             tm_end.tm_year + 1900,
             tm_end.tm_mon + 1,
             tm_end.tm_mday,
@@ -78,7 +79,7 @@ int gen(const cpe_kpi_emu_ctx_t *ctx)
             tm_end.tm_sec,
             ctx->tz.h,
             ctx->tz.m);
-    fprintf(fp, "<repPeriod duration=\"PT%dS\"/>\n", ctx->uld_intval);
+    fprintf(fp, "<repPeriod duration=\"PT%dS\"/>\n", ctx->interval);
     fprintf(fp, "<measType p=\"1\">cpe-pm-cell-serv-tm</measType>\n");
     fprintf(fp, "<measType p=\"2\">cpe-pm-rrc-req-nr</measType>\n");
     fprintf(fp, "<measType p=\"3\">cpe-pm-rrc-succ-nr</measType>\n");

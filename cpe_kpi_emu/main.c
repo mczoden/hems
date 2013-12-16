@@ -9,35 +9,37 @@
 #include <errno.h>
 #include <signal.h>
 #include <assert.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include "main.h"
 #include "gen.h"
 #include "uld.h"
 #include "dbg.h"
+#include "cfg.h"
 
-static pthread_mutex_t mtx_gen;
-static pthread_mutex_t mtx_uld;
-static pthread_t tid_gen;
-static pthread_t tid_uld;
+#define DFL_BAK_DIR "./backup/"
+
+static pthread_mutex_t mtx_gen = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t mtx_uld = PTHREAD_MUTEX_INITIALIZER;
+static pthread_t tid_gen = 0;
+static pthread_t tid_uld = 0;
 
 static void print_usage(char *argv0)
 {
     printf("Usage: %s [OPTIONS]\n", argv0);
 
-    printf("\nCPE information:\n");
-    printf("  --sn=SN               serial number\n");
-    printf("\nKPI file generation options:\n");
-    printf("  --kpi-interval INTVAL interval of kpi generation\n");
-    printf("                        upload will begins immediately if KPI file generated\n");
-    printf("\nUpload options:\n");
-    printf("  --url URL             upload url\n");
-    printf("  --port PORT           upload port\n");
-    printf("  --username USERNAME   upload username\n");
-    printf("  --password PASSWORD   upload password\n");
-    printf("  --backup              whether backup the kpi file\n");
-    printf("                        after uploading successfully\n");
-    printf("\nOther options:\n");
-    printf("  --help    display this help and exit\n");
+    printf("  --config CONFIG   specify config file path\n");
+    printf("  --log-level       LVL specify log level\n");
+    printf("                    the higher level are, the more logs displayd\n");
+    printf("                    now there are 4 levels: panic, error, info, debug\n");
+    printf("                    LVL = 0: no logs\n");
+    printf("                    LVL = 1: panic\n");
+    printf("                    LVL = 2: panic, error\n");
+    printf("                    ...\n");
+    printf("                    LVL = 4: all logs\n");
+    printf("                    all logs will printed to stderr\n");
+    printf("  --help            display this help and exit\n");
 }
 
 static int parser_para(cpe_kpi_emu_ctx_t *ctx, int argc, char *argv[])
@@ -45,50 +47,25 @@ static int parser_para(cpe_kpi_emu_ctx_t *ctx, int argc, char *argv[])
     int opt = 0;
     struct option long_opts[] = {
         { "help",           no_argument,        0, 'h' },
-        { "sn",             required_argument,  0, 's' },
-        { "url",            required_argument,  0, 'U' },
-        { "port",           required_argument,  0, 'P' },
-        { "kpi-interval",   required_argument,  0, 'i' },
-        { "username",       required_argument,  0, 'u' },
-        { "password",       required_argument,  0, 'p' },
-        { "backup",         no_argument,        0, 'b' },
+        { "debug-level",    required_argument,  0, 'l' },
+        { "config",         required_argument,  0, 'f' },
         { 0, 0, 0, 0 }
     };
 
     do {
-        opt = getopt_long(argc, argv, "hs:U:P:i:u:p:b", long_opts, NULL);
+        opt = getopt_long(argc, argv, "hl:f:", long_opts, NULL);
         switch (opt) {
         case 'h':
             print_usage(argv[0]);
             exit(EXIT_SUCCESS);
             break;
 
-        case 's':
-            strncpy(ctx->sn, optarg, sizeof(ctx->sn) - 1);
+        case 'l':
+            set_dbg_lvl(atoi(optarg));
             break;
 
-        case 'U':
-            strncpy(ctx->url, optarg, sizeof(ctx->url) - 1);
-            break;
-
-        case 'P':
-            ctx->port = atoi(optarg);
-            break;
-
-        case 'i':
-            ctx->uld_intval = atoi(optarg);
-            break;
-
-        case 'u':
-            strncpy(ctx->username, optarg, sizeof(ctx->username) - 1);
-            break;
-
-        case 'p':
-            strncpy(ctx->password, optarg, sizeof(ctx->password) - 1);
-            break;
-
-        case 'b':
-            ctx->need_backup = true;
+        case 'f':
+            strncpy(ctx->cfg, optarg, sizeof(ctx->cfg) - 1);
             break;
 
         case '?':
@@ -104,29 +81,64 @@ static int parser_para(cpe_kpi_emu_ctx_t *ctx, int argc, char *argv[])
         }
     } while (opt != -1);
 
-    /**
-     * TODO:
-     *
-     * Read upload time from para
-     */
-    ctx->t_uld_time = 0;
+    return 0;
+}
 
-    if (ctx->uld_intval <= 1) {
-        DBG_PNC("Upload interval too short!");
-        return -1;
-    }
+static int chk_and_prep_bak_dir(const char *dirname)
+{
+    struct stat st = { 0 };
 
-    if (strlen(ctx->sn) == 0) {
-        DBG_PNC("Serial number should not be empty!");
-        return -1;
-    }
-
-    if (strlen(ctx->url) == 0) {
-        DBG_PNC("Upload URL should not be empty!");
-        return -1;
+    if (lstat(dirname, &st) != 0) {
+        if (errno == ENOENT) {
+            if (mkdir(dirname, 0777) != 0) {
+                DBG_PNC("Create directory: %s failed.");
+                return -1;
+            }
+        } else {
+            DBG_PNC("Invoke lstat() failed: %s.", strerror(errno));
+            return -1;
+        }
+    } else {
+        if (!S_ISDIR(st.st_mode)) {
+            DBG_PNC("%s has been existed but not a directory.", dirname);
+            return -1;
+        }
     }
 
     return 0;
+}
+
+static bool permit_to_run(cpe_kpi_emu_ctx_t *ctx)
+{
+
+    if (ctx->interval <= 1) {
+        DBG_PNC("Upload interval too short.");
+        return false;
+    }
+
+    if (strlen(ctx->sn) == 0) {
+        DBG_PNC("Serial number should not be empty.");
+        return false;
+    }
+
+    if (strlen(ctx->url) == 0) {
+        DBG_PNC("Upload URL should not be empty.");
+        return false;
+    }
+
+    if (ctx->need_bak) {
+        if (strlen(ctx->bak_dir) == 0) {
+            DBG_ERR("Backup directory is not specified, default: %s.",
+                    DFL_BAK_DIR);
+            strncpy(ctx->bak_dir, DFL_BAK_DIR, sizeof(ctx->bak_dir) - 1);
+        }
+        if (chk_and_prep_bak_dir(ctx->bak_dir) != 0) {
+            DBG_PNC("Backup directory can't be used.");
+            return false;
+        }
+    }
+
+    return true;
 }
 
 static int time_init(cpe_kpi_emu_ctx_t *ctx)
@@ -196,7 +208,7 @@ static void *gen_thread_hdl(void *arg)
     while (1) {
         pthread_mutex_lock(&mtx_gen);
         if (gen(ctx) != 0) {
-            DBG_ERR("Generate kpi file failed");
+            DBG_ERR("Generate kpi file failed.");
         } else {
             pthread_mutex_unlock(&mtx_uld);
         }
@@ -212,12 +224,26 @@ int main(int argc, char *argv[])
     bool has_gen = false;
 
     if (parser_para(&ctx, argc, argv) != 0) {
-        DBG_PNC("Parser parameters failed, exit!");
+        DBG_PNC("Parser parameters failed, exit.");
+        exit(EXIT_FAILURE);
+    }
+
+    if (strlen(ctx.cfg) == 0) {
+        DBG_PNC("Specify the config file with -f.");
+        exit(EXIT_FAILURE);
+    }
+
+    if (read_cfg(&ctx, ctx.cfg) != 0) {
+        DBG_PNC("Read config file: %s failed.");
         exit(EXIT_FAILURE);
     }
 
     if (time_init(&ctx) != 0) {
-        DBG_PNC("Initiate time failed, exit!");
+        DBG_PNC("Initiate time failed, exit.");
+        exit(EXIT_FAILURE);
+    }
+
+    if (!permit_to_run(&ctx)) {
         exit(EXIT_FAILURE);
     }
 
@@ -240,6 +266,7 @@ int main(int argc, char *argv[])
     if (pthread_create(&tid_gen, &attr, gen_thread_hdl, (void *)&ctx) != 0) {
         DBG_PNC("Create generate pthread failed: %s.", strerror(errno));
         pthread_cancel(tid_uld);
+        sleep(1);
         pthread_mutex_destroy(&mtx_gen);
         pthread_mutex_destroy(&mtx_uld);
         return -1;
@@ -251,7 +278,7 @@ int main(int argc, char *argv[])
     signal(SIGTERM, sig_hdl);
 
     while (1) {
-        if ((time(NULL) - ctx.t_uld_time) % ctx.uld_intval == 0) {
+        if ((time(NULL) - ctx.t_uld_time) % ctx.interval == 0) {
             if (!has_gen) {
                 pthread_mutex_unlock(&mtx_gen);
                 has_gen = true;

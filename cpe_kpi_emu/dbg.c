@@ -57,7 +57,8 @@ void dbg(unsigned char lvl, const char *fmt, ...)
 int set_dbg_lvl(int lvl)
 {
     if (lvl < 0) {
-        DBG_ERR("Invalid debug level specified, keep default: panic, error & info.");
+        DBG_ERR("Invalid debug level specified,"
+                " keep default: panic, error & info.");
         return -1;
     }
 

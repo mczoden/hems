@@ -7,13 +7,14 @@
 typedef struct cpe_kpi_emu_ctx cpe_kpi_emu_ctx_t;
 struct cpe_kpi_emu_ctx {
     time_t t_beg_pro;
+    char cfg[256];
     
     struct {
         int h;
         int m;
     } tz;
 
-    int uld_intval;
+    int interval;
     time_t t_uld_time;
 
     char sn[256];
@@ -22,7 +23,8 @@ struct cpe_kpi_emu_ctx {
     char username[256];
     char password[256];
 
-    bool need_backup;
+    bool need_bak;
+    char bak_dir[256];
 };
 
 #endif /* ifndef _MAIN_H_ */

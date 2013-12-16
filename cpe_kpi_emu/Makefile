@@ -1,6 +1,6 @@
 CC = gcc
 BIN = cpe_kpi_emu
-OBJS =  main.o gen.o uld.o dbg.o
+OBJS =  main.o gen.o uld.o dbg.o cfg.o
 CFLAGS += -Wall
 CFLAGS += -g
 #CFLAGS += -O3

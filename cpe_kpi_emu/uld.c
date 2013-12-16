@@ -4,16 +4,14 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <stdio.h>
-#include <curl/curl.h>
 #include <stdbool.h>
 #include <errno.h>
 #include <assert.h>
+#include <curl/curl.h>
 
 #include "main.h"
 #include "uld.h"
 #include "dbg.h"
-
-#define BAK_DIR "backup/"
 
 enum {
     PROTO_UNKNOWN = -1,
@@ -115,8 +113,9 @@ int uld(const cpe_kpi_emu_ctx_t *ctx)
                    date, start_time, end_time, sn) == 4) {
             if (do_curl(ctx, ent->d_name) == 0) {
                 DBG_INF("Upload kpi file %s successfully.", ent->d_name);
-                if (ctx->need_backup) {
-                    snprintf(bak_file, sizeof(bak_file), BAK_DIR"%s", ent->d_name);
+                if (ctx->need_bak) {
+                    snprintf(bak_file, sizeof(bak_file), "%s/%s",
+                             ctx->bak_dir, ent->d_name);
                     rename(ent->d_name, bak_file);
                 } else {
                     unlink(ent->d_name);
