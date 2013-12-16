@@ -114,7 +114,7 @@ int uld(const cpe_kpi_emu_ctx_t *ctx)
                    "A%8[0-9].%4[0-9]%*[^-]-%4[0-9]%*[^_]_%s",
                    date, start_time, end_time, sn) == 4) {
             if (do_curl(ctx, ent->d_name) == 0) {
-                DBG_INF("Upload kpi file %s successfully.");
+                DBG_INF("Upload kpi file %s successfully.", ent->d_name);
                 if (ctx->need_backup) {
                     snprintf(bak_file, sizeof(bak_file), BAK_DIR"%s", ent->d_name);
                     rename(ent->d_name, bak_file);
