@@ -114,6 +114,7 @@ int uld(const cpe_kpi_emu_ctx_t *ctx)
                    "A%8[0-9].%4[0-9]%*[^-]-%4[0-9]%*[^_]_%s",
                    date, start_time, end_time, sn) == 4) {
             if (do_curl(ctx, ent->d_name) == 0) {
+                DBG_INF("Upload kpi file %s successfully.");
                 if (ctx->need_backup) {
                     snprintf(bak_file, sizeof(bak_file), BAK_DIR"%s", ent->d_name);
                     rename(ent->d_name, bak_file);
@@ -121,14 +122,8 @@ int uld(const cpe_kpi_emu_ctx_t *ctx)
                     unlink(ent->d_name);
                 }
             } else {
-                /**
-                 * TODO:
-                 * One of KPI failed, return -1 immediate?
-                 * BUT file should be uploaded in normal case, right?
-                 */
                 DBG_ERR("Upload %s failed", ent->d_name);
-                closedir(dp);
-                return -1;
+                continue;
             }
         }
     }

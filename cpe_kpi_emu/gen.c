@@ -126,7 +126,7 @@ int gen(const cpe_kpi_emu_ctx_t *ctx)
     fprintf(fp, "<r p=\"1\">%ld</r>\n", t_end - ctx->t_beg_pro);
     fprintf(fp, "<r p=\"2\">%ld</r>\n", random() % 100);
     fprintf(fp, "<r p=\"3\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"4\">%ld/r>\n", random() % 100);
+    fprintf(fp, "<r p=\"4\">%ld</r>\n", random() % 100);
     fprintf(fp, "<r p=\"5\">%ld</r>\n", random() % 100);
     fprintf(fp, "<r p=\"6\">%ld</r>\n", random() % 100);
     fprintf(fp, "<r p=\"7\">%ld</r>\n", random() % 100);
