@@ -3,7 +3,7 @@ BIN = cheer
 OBJS =  main.o gen.o uld.o dbg.o cfg.o
 CFLAGS += -Wall
 CFLAGS += -g
-#CFLAGS += -O3
+CFLAGS += -O3
 LIBS += -lcurl -lpthread
 
 all: $(BIN)
