@@ -4,8 +4,8 @@
 #include <time.h>
 #include <stdbool.h>
 
-typedef struct cpe_kpi_emu_ctx cpe_kpi_emu_ctx_t;
-struct cpe_kpi_emu_ctx {
+typedef struct cheer_ctx cheer_ctx_t;
+struct cheer_ctx {
     time_t t_beg_pro;
     char cfg[256];
     
@@ -25,6 +25,8 @@ struct cpe_kpi_emu_ctx {
 
     bool need_bak;
     char bak_dir[256];
+
+    int dbg_lvl;
 };
 
 #endif /* ifndef _MAIN_H_ */

@@ -3,6 +3,6 @@
 
 #include "main.h"
 
-extern int uld(const cpe_kpi_emu_ctx_t *ctx);
+extern int uld(const cheer_ctx_t *ctx);
 
 #endif /* ifndef _ULD_H_ */

@@ -1,6 +1,7 @@
 #ifndef _DBG_H_
 #define _DBG_H_
 
+#define LVL_NON (0)
 #define LVL_PNC (1 << 0)
 #define LVL_ERR (1 << 1)
 #define LVL_INF (1 << 2)

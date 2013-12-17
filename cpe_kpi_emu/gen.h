@@ -3,6 +3,6 @@
 
 #include "main.h"
 
-extern int gen(const cpe_kpi_emu_ctx_t *ctx);
+extern int gen(const cheer_ctx_t *ctx);
 
 #endif /* ifndef _GEN_FILE_H_ */

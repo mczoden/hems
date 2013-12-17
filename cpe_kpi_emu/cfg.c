@@ -50,10 +50,10 @@ static int split_cfg_line(char *line, char **name, char **value)
     *p = '\0';
     *name = rtrim(ltrim(line));
 
-    return 0;
+    return (strlen(*name) != 0) ? 0 : -1;
 }
 
-static int parser_cfg(cpe_kpi_emu_ctx_t *ctx,
+static int parser_cfg(cheer_ctx_t *ctx,
                       const char *name, const char *value, size_t line_no)
 {
     if (strncasecmp(name, "sn", strlen("sn")) == 0) {
@@ -84,8 +84,11 @@ static int parser_cfg(cpe_kpi_emu_ctx_t *ctx,
         strncpy(ctx->bak_dir, value, sizeof(ctx->bak_dir) - 1);
     } else if (strncasecmp(name, "interval", strlen("interval")) == 0) {
         ctx->interval = atoi(value);
+    } else if (strncasecmp(name, "debug_level", strlen("dbg_level")) == 0) {
+        ctx->dbg_lvl = atoi(value);
     } else {
-        DBG_ERR("LINE %u: Unrecognized iterm: \"%s\".", line_no, name);
+        DBG_ERR("%s LINE %u: Unrecognized iterm: \"%s\".",
+                ctx->cfg, line_no, name);
     }
     /**
      * TODO:
@@ -96,7 +99,7 @@ static int parser_cfg(cpe_kpi_emu_ctx_t *ctx,
     return 0;
 }
 
-int read_cfg(cpe_kpi_emu_ctx_t *ctx, const char *filename)
+int read_cfg(cheer_ctx_t *ctx, const char *filename)
 {
     char *line = NULL;
     size_t len = 0;
@@ -126,9 +129,7 @@ int read_cfg(cpe_kpi_emu_ctx_t *ctx, const char *filename)
         line_no++;
 
         if (split_cfg_line(line, &name, &value) == 0) {
-            if ((strlen(name) != 0) && (strlen(value) != 0)) {
-                parser_cfg(ctx, name, value, line_no);
-            }
+            parser_cfg(ctx, name, value, line_no);
         }
         free(line);
     }

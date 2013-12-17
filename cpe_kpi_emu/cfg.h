@@ -3,6 +3,6 @@
 
 #include "main.h"
 
-extern int read_cfg(cpe_kpi_emu_ctx_t *ctx, const char *filename);
+extern int read_cfg(cheer_ctx_t *ctx, const char *filename);
 
 #endif /* ifndef _CFG_H_ */

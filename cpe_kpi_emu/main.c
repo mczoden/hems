@@ -30,38 +30,24 @@ static void print_usage(char *argv0)
     printf("Usage: %s [OPTIONS]\n", argv0);
 
     printf("  --config CONFIG   specify config file path\n");
-    printf("  --log-level       LVL specify log level\n");
-    printf("                    the higher level are, the more logs displayd\n");
-    printf("                    now there are 4 levels: panic, error, info, debug\n");
-    printf("                    LVL = 0: no logs\n");
-    printf("                    LVL = 1: panic\n");
-    printf("                    LVL = 2: panic, error\n");
-    printf("                    ...\n");
-    printf("                    LVL = 4: all logs\n");
-    printf("                    all logs will printed to stderr\n");
     printf("  --help            display this help and exit\n");
 }
 
-static int parser_para(cpe_kpi_emu_ctx_t *ctx, int argc, char *argv[])
+static int parser_para(cheer_ctx_t *ctx, int argc, char *argv[])
 {
     int opt = 0;
     struct option long_opts[] = {
         { "help",           no_argument,        0, 'h' },
-        { "debug-level",    required_argument,  0, 'l' },
         { "config",         required_argument,  0, 'f' },
         { 0, 0, 0, 0 }
     };
 
     do {
-        opt = getopt_long(argc, argv, "hl:f:", long_opts, NULL);
+        opt = getopt_long(argc, argv, "hf:", long_opts, NULL);
         switch (opt) {
         case 'h':
             print_usage(argv[0]);
             exit(EXIT_SUCCESS);
-            break;
-
-        case 'l':
-            set_dbg_lvl(atoi(optarg));
             break;
 
         case 'f':
@@ -108,7 +94,7 @@ static int chk_and_prep_bak_dir(const char *dirname)
     return 0;
 }
 
-static bool permit_to_run(cpe_kpi_emu_ctx_t *ctx)
+static bool permit_to_run(cheer_ctx_t *ctx)
 {
 
     if (ctx->interval <= 1) {
@@ -138,17 +124,22 @@ static bool permit_to_run(cpe_kpi_emu_ctx_t *ctx)
         }
     }
 
+    if (ctx->dbg_lvl == LVL_NON) {
+        DBG_INF("Debug level is 0, no dbg will be displayed from now.");
+    }
+    set_dbg_lvl(ctx->dbg_lvl);
+
     return true;
 }
 
-static int time_init(cpe_kpi_emu_ctx_t *ctx)
+static int time_init(cheer_ctx_t *ctx)
 {
     /**
      * TODO:
      * Optimize timezone calculation.
      */
     struct tm tm = { 0 };
-    int gmt_h = 0, gmt_m = 0;
+    long int gmt_h = 0, gmt_m = 0;
 
     ctx->t_beg_pro = time(NULL);
 
@@ -183,7 +174,7 @@ static void sig_hdl(int sig)
 
 static void *uld_thread_hdl(void *arg)
 {
-    const cpe_kpi_emu_ctx_t *ctx = ((cpe_kpi_emu_ctx_t *)arg);
+    const cheer_ctx_t *ctx = ((cheer_ctx_t *)arg);
 
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
@@ -200,7 +191,7 @@ static void *uld_thread_hdl(void *arg)
 
 static void *gen_thread_hdl(void *arg)
 {
-    const cpe_kpi_emu_ctx_t *ctx = ((cpe_kpi_emu_ctx_t *)arg);
+    const cheer_ctx_t *ctx = ((cheer_ctx_t *)arg);
 
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
@@ -219,7 +210,7 @@ static void *gen_thread_hdl(void *arg)
 
 int main(int argc, char *argv[])
 {
-    cpe_kpi_emu_ctx_t ctx = { 0 };
+    cheer_ctx_t ctx = { 0 };
     pthread_attr_t attr;
     bool has_gen = false;
 

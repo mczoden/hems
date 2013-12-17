@@ -9,7 +9,7 @@
 #include "gen.h"
 #include "dbg.h"
 
-int gen(const cpe_kpi_emu_ctx_t *ctx)
+int gen(const cheer_ctx_t *ctx)
 {
     FILE *fp = NULL;
     static time_t t_beg = 0, t_end = 0;

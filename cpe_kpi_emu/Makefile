@@ -1,5 +1,5 @@
 CC = gcc
-BIN = cpe_kpi_emu
+BIN = cheer
 OBJS =  main.o gen.o uld.o dbg.o cfg.o
 CFLAGS += -Wall
 CFLAGS += -g

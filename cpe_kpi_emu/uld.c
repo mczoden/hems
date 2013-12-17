@@ -33,7 +33,7 @@ static int get_proto_by_url(const char *url)
     return -1;
 }
 
-static int do_curl(const cpe_kpi_emu_ctx_t *ctx, char *filename)
+static int do_curl(const cheer_ctx_t *ctx, char *filename)
 {
     int proto = 0;
     char *p = NULL;
@@ -91,7 +91,7 @@ static int do_curl(const cpe_kpi_emu_ctx_t *ctx, char *filename)
     return 0;
 }
 
-int uld(const cpe_kpi_emu_ctx_t *ctx)
+int uld(const cheer_ctx_t *ctx)
 {
     char date[16] = { 0 };
     char start_time[16] = { 0 }, end_time[16] = { 0 };
