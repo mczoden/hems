@@ -1,7 +1,0 @@
-sn = 460000000010555
-url = ftp://172.21.20.205/member/summer_sun/kpi/
-username = summer_sun
-password = Echeveria.10555
-need_bak = y
-bak_dir = ./kpi
-interval = 900
