@@ -13,8 +13,8 @@ int gen(const cheer_ctx_t *ctx)
 {
     FILE *fp = NULL;
     static time_t t_beg = 0, t_end = 0;
-    struct tm tm_beg = { 0 };
-    struct tm tm_end = { 0 };
+    struct tm *tm_beg = NULL;
+    struct tm *tm_end = NULL;
     char filename[256] = { 0 };
 
     assert(ctx);
@@ -24,20 +24,20 @@ int gen(const cheer_ctx_t *ctx)
     }
     t_end = time(NULL);
 
-    localtime_r(&t_beg, &tm_beg);
-    localtime_r(&t_end, &tm_end);
+    tm_beg = localtime(&t_beg);
+    tm_end = localtime(&t_end);
 
     snprintf(filename, sizeof(filename),
              "A%04d%02d%02d.%02d%02d%+03d%02d-%02d%02d%+03d%02d_%s",
-             tm_beg.tm_year + 1900,
-             tm_beg.tm_mon + 1,
-             tm_beg.tm_mday,
-             tm_beg.tm_hour,
-             tm_beg.tm_min,
+             tm_beg->tm_year + 1900,
+             tm_beg->tm_mon + 1,
+             tm_beg->tm_mday,
+             tm_beg->tm_hour,
+             tm_beg->tm_min,
              ctx->tz.h,
              ctx->tz.m,
-             tm_end.tm_hour,
-             tm_end.tm_min,
+             tm_end->tm_hour,
+             tm_end->tm_min,
              ctx->tz.h,
              ctx->tz.m,
              ctx->sn);
@@ -57,12 +57,12 @@ int gen(const cheer_ctx_t *ctx)
     fprintf(fp, "<fileHeader fileFormatVersion=\"32.435 V7.0\" vendorName=\"Sercomm\">\n");
     fprintf(fp, "<fileSender elementType=\"LTE_Femto\"/>\n");
     fprintf(fp, "<measCollec beginTime=\"%04d-%02d-%02dT%02d:%02d:%02d%+03d:%02d\"/>\n",
-            tm_beg.tm_year + 1900,
-            tm_beg.tm_mon + 1,
-            tm_beg.tm_mday,
-            tm_beg.tm_hour,
-            tm_beg.tm_min,
-            tm_beg.tm_sec,
+            tm_end->tm_year + 1900,
+            tm_end->tm_mon + 1,
+            tm_end->tm_mday,
+            tm_end->tm_hour,
+            tm_end->tm_min,
+            tm_end->tm_sec,
             ctx->tz.h,
             ctx->tz.m);
     fprintf(fp, "</fileHeader>\n");
@@ -71,12 +71,12 @@ int gen(const cheer_ctx_t *ctx)
     fprintf(fp, "<measInfo>\n");
     fprintf(fp, "<granPeriod duration=\"PT%dS\" endTime=\"%04d-%02d-%02dT%02d:%02d:%02d%+03d:%02d\"/>\n",
             ctx->interval,
-            tm_end.tm_year + 1900,
-            tm_end.tm_mon + 1,
-            tm_end.tm_mday,
-            tm_end.tm_hour,
-            tm_end.tm_min,
-            tm_end.tm_sec,
+            tm_beg->tm_year + 1900,
+            tm_beg->tm_mon + 1,
+            tm_beg->tm_mday,
+            tm_beg->tm_hour,
+            tm_beg->tm_min,
+            tm_beg->tm_sec,
             ctx->tz.h,
             ctx->tz.m);
     fprintf(fp, "<repPeriod duration=\"PT%dS\"/>\n", ctx->interval);
@@ -125,59 +125,59 @@ int gen(const cheer_ctx_t *ctx)
     fprintf(fp, "<measType p=\"43\">cpe-pm-ue-conn-max-nr</measType>\n");
     fprintf(fp, "<measValue measObjLdn=\"HeNBFunction=1\">\n");
     fprintf(fp, "<r p=\"1\">%ld</r>\n", t_end - ctx->t_beg_pro);
-    fprintf(fp, "<r p=\"2\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"3\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"4\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"5\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"6\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"7\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"8\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"9\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"10\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"11\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"12\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"13\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"14\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"15\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"16\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"17\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"18\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"19\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"20\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"21\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"22\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"23\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"24\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"25\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"26\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"27\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"28\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"29\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"30\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"31\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"32\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"33\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"34\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"35\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"36\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"37\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"38\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"39\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"40\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"41\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"42\">%ld</r>\n", random() % 100);
-    fprintf(fp, "<r p=\"43\">%ld</r>\n", random() % 100);
+    fprintf(fp, "<r p=\"2\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"3\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"4\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"5\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"6\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"7\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"8\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"9\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"10\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"11\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"12\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"13\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"14\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"15\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"16\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"17\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"18\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"19\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"20\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"21\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"22\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"23\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"24\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"25\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"26\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"27\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"28\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"29\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"30\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"31\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"32\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"33\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"34\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"35\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"36\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"37\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"38\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"39\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"40\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"41\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"42\">%d</r>\n", rand() % 100);
+    fprintf(fp, "<r p=\"43\">%d</r>\n", rand() % 100);
     fprintf(fp, "</measValue>\n");
     fprintf(fp, "</measInfo>\n");
     fprintf(fp, "</measData>\n");
     fprintf(fp, "<fileFooter>\n");
     fprintf(fp, "<measCollec endTime=\"%04d-%02d-%02dT%02d:%02d:%02d%+03d:%02d\"/>\n",
-            tm_end.tm_year + 1900,
-            tm_end.tm_mon + 1,
-            tm_end.tm_mday,
-            tm_end.tm_hour,
-            tm_end.tm_min,
-            tm_end.tm_sec,
+            tm_end->tm_year + 1900,
+            tm_end->tm_mon + 1,
+            tm_end->tm_mday,
+            tm_end->tm_hour,
+            tm_end->tm_min,
+            tm_end->tm_sec,
             ctx->tz.h,
             ctx->tz.m);
     fprintf(fp, "</fileFooter>\n");

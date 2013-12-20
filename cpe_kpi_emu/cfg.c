@@ -56,17 +56,17 @@ static int split_cfg_line(char *line, char **name, char **value)
 static int parser_cfg(cheer_ctx_t *ctx,
                       const char *name, const char *value, size_t line_no)
 {
-    if (strncasecmp(name, "sn", strlen("sn")) == 0) {
+    if (strncmp(name, "sn", strlen("sn")) == 0) {
         strncpy(ctx->sn, value, sizeof(ctx->sn) - 1);
-    } else if (strncasecmp(name, "url", strlen("url")) == 0) {
+    } else if (strncmp(name, "url", strlen("url")) == 0) {
         strncpy(ctx->url, value, sizeof(ctx->url) - 1);
-    } else if (strncasecmp(name, "port", strlen("port")) == 0) {
+    } else if (strncmp(name, "port", strlen("port")) == 0) {
         ctx->port = atoi(value);
-    } else if (strncasecmp(name, "username", strlen("username")) == 0) {
+    } else if (strncmp(name, "username", strlen("username")) == 0) {
         strncpy(ctx->username, value, sizeof(ctx->username) - 1);
-    } else if (strncasecmp(name, "password", strlen("password")) == 0) {
+    } else if (strncmp(name, "password", strlen("password")) == 0) {
         strncpy(ctx->password, value, sizeof(ctx->password) - 1);
-    } else if (strncasecmp(name, "need_bak", strlen("password")) == 0) {
+    } else if (strncmp(name, "need_bak", strlen("password")) == 0) {
         switch (value[0]) {
         case 'Y':
         case 'y':
@@ -80,11 +80,11 @@ static int parser_cfg(cheer_ctx_t *ctx,
             DBG_ERR("%s LINE %u: need_bak = <Y|y|N|n>", ctx->cfg, line_no);
             break;
         }
-    } else if (strncasecmp(name, "bak_dir", strlen("bak_dir")) == 0) {
+    } else if (strncmp(name, "bak_dir", strlen("bak_dir")) == 0) {
         strncpy(ctx->bak_dir, value, sizeof(ctx->bak_dir) - 1);
-    } else if (strncasecmp(name, "interval", strlen("interval")) == 0) {
+    } else if (strncmp(name, "interval", strlen("interval")) == 0) {
         ctx->interval = atoi(value);
-    } else if (strncasecmp(name, "debug_level", strlen("dbg_level")) == 0) {
+    } else if (strncmp(name, "debug_level", strlen("dbg_level")) == 0) {
         ctx->dbg_lvl = atoi(value);
     } else {
         DBG_ERR("%s LINE %u: Unrecognized iterm: \"%s\".",
@@ -101,8 +101,7 @@ static int parser_cfg(cheer_ctx_t *ctx,
 
 int read_cfg(cheer_ctx_t *ctx, const char *filename)
 {
-    char *line = NULL;
-    size_t len = 0;
+    static char line[BUFSIZ] = { 0 };
     FILE *fp = NULL;
     char *name = NULL, *value = NULL;
     size_t line_no = 0;
@@ -114,16 +113,7 @@ int read_cfg(cheer_ctx_t *ctx, const char *filename)
     }
 
     while (1) {
-        line = NULL;
-
-        errno = 0;
-        if ((len = getline(&line, &len, fp)) == -1) {
-            if (errno != 0) {
-                DBG_ERR("Invoke getline failed: %s.", strerror(errno));
-            }
-            if (line != NULL) {
-                free(line);
-            }
+        if (fgets(line, sizeof(line), fp) == NULL) {
             break;
         }
         line_no++;
@@ -131,7 +121,6 @@ int read_cfg(cheer_ctx_t *ctx, const char *filename)
         if (split_cfg_line(line, &name, &value) == 0) {
             parser_cfg(ctx, name, value, line_no);
         }
-        free(line);
     }
 
     fclose(fp);

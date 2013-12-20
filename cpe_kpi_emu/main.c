@@ -11,6 +11,7 @@
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/select.h>
 
 #include "main.h"
 #include "gen.h"
@@ -74,14 +75,14 @@ static int chk_and_prep_bak_dir(const char *dirname)
 {
     struct stat st = { 0 };
 
-    if (lstat(dirname, &st) != 0) {
+    if (stat(dirname, &st) != 0) {
         if (errno == ENOENT) {
             if (mkdir(dirname, 0777) != 0) {
-                DBG_PNC("Create directory: %s failed.");
+                DBG_PNC("Create directory: %s failed.", dirname);
                 return -1;
             }
         } else {
-            DBG_PNC("Invoke lstat() failed: %s.", strerror(errno));
+            DBG_PNC("Invoke stat() failed: %s.", strerror(errno));
             return -1;
         }
     } else {
@@ -98,17 +99,17 @@ static bool permit_to_run(cheer_ctx_t *ctx)
 {
 
     if (ctx->interval <= 1) {
-        DBG_PNC("Upload interval too short.");
+        DBG_PNC("%s.", "Upload interval too short");
         return false;
     }
 
     if (strlen(ctx->sn) == 0) {
-        DBG_PNC("Serial number should not be empty.");
+        DBG_PNC("%s.", "Serial number should not be empty");
         return false;
     }
 
     if (strlen(ctx->url) == 0) {
-        DBG_PNC("Upload URL should not be empty.");
+        DBG_PNC("%s.", "Upload URL should not be empty");
         return false;
     }
 
@@ -119,13 +120,13 @@ static bool permit_to_run(cheer_ctx_t *ctx)
             strncpy(ctx->bak_dir, DFL_BAK_DIR, sizeof(ctx->bak_dir) - 1);
         }
         if (chk_and_prep_bak_dir(ctx->bak_dir) != 0) {
-            DBG_PNC("Backup directory can't be used.");
+            DBG_PNC("%s.", "Backup directory can't be used");
             return false;
         }
     }
 
     if (ctx->dbg_lvl == LVL_NON) {
-        DBG_INF("Debug level is 0, no dbg will be displayed from now.");
+        DBG_INF("%s.", "Debug level is 0, no dbg will be displayed from now");
     }
     set_dbg_lvl(ctx->dbg_lvl);
 
@@ -134,15 +135,18 @@ static bool permit_to_run(cheer_ctx_t *ctx)
 
 static int time_init(cheer_ctx_t *ctx)
 {
+#if 0
     /**
      * TODO:
      * Optimize timezone calculation.
      */
     struct tm tm = { 0 };
     long int gmt_h = 0, gmt_m = 0;
+#endif
 
     ctx->t_beg_pro = time(NULL);
 
+#if 0
     localtime_r(&ctx->t_beg_pro, &tm);
 #ifdef __USE_BSD
     gmt_h = tm.tm_gmtoff / 3600;
@@ -153,6 +157,7 @@ static int time_init(cheer_ctx_t *ctx)
 #endif
     ctx->tz.h = gmt_h;
     ctx->tz.m = gmt_m;
+#endif
 
     return 0;
 }
@@ -183,7 +188,7 @@ static void *uld_thread_hdl(void *arg)
     while (1) {
         pthread_mutex_lock(&mtx_uld);
         if (uld(ctx) != 0) {
-            DBG_ERR("Upload kpi file failed, retry at next intval.");
+            DBG_ERR("%s.", "Upload kpi file failed, retry at next intval");
         }
     }
 
@@ -200,7 +205,7 @@ static void *gen_thread_hdl(void *arg)
     while (1) {
         pthread_mutex_lock(&mtx_gen);
         if (gen(ctx) != 0) {
-            DBG_ERR("Generate kpi file failed.");
+            DBG_ERR("%s.", "Generate kpi file failed");
         } else {
             pthread_mutex_unlock(&mtx_uld);
         }
@@ -214,24 +219,25 @@ int main(int argc, char *argv[])
     cheer_ctx_t ctx = { 0 };
     pthread_attr_t attr;
     bool has_gen = false;
+    struct timeval tv = { 0 };
 
     if (parser_para(&ctx, argc, argv) != 0) {
-        DBG_PNC("Parser parameters failed, exit.");
+        DBG_PNC("%s.", "Parser parameters failed, exit");
         exit(EXIT_FAILURE);
     }
 
     if (strlen(ctx.cfg) == 0) {
-        DBG_PNC("Specify the config file with -f.");
+        DBG_PNC("%s.", "Specify the config file with -f");
         exit(EXIT_FAILURE);
     }
 
     if (read_cfg(&ctx, ctx.cfg) != 0) {
-        DBG_PNC("Read config file: %s failed.");
+        DBG_PNC("%s.", "Read config file: %s failed");
         exit(EXIT_FAILURE);
     }
 
     if (time_init(&ctx) != 0) {
-        DBG_PNC("Initiate time failed, exit.");
+        DBG_PNC("%s.", "Initiate time failed, exit");
         exit(EXIT_FAILURE);
     }
 
@@ -282,7 +288,9 @@ int main(int argc, char *argv[])
         } else {
             has_gen = false;
         }
-        usleep(100000);
+        tv.tv_sec = 0;
+        tv.tv_usec = 100000;
+        select(0, NULL, NULL, NULL, &tv);
     }
 
     return 0;

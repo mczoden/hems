@@ -44,13 +44,14 @@ static int do_curl(const cheer_ctx_t *ctx, char *filename)
     static char err_buf[CURL_ERROR_SIZE] = { 0 };
 
     if ((proto = get_proto_by_url(ctx->url)) == PROTO_UNKNOWN) {
-        DBG_ERR("Unkonw protocal.");
+        DBG_ERR("%s.", "Unkonw protocal");
         return -1;
     }
 
-    p = stpncpy(url, ctx->url, sizeof(url) - 1);
+    strncpy(url, ctx->url, sizeof(url) - 1);
+    p = url + strlen(url);
     if (p + strlen(filename) > url + sizeof(url) - 1) {
-        DBG_ERR("File name too long, retry at next intval.");
+        DBG_ERR("%s.", "File name too long, retry at next intval");
         return -1;
     }
     strcat(url, filename);
@@ -61,7 +62,7 @@ static int do_curl(const cheer_ctx_t *ctx, char *filename)
     }
 
     if ((curl = curl_easy_init()) == NULL) {
-        DBG_ERR("Initiate CURL failed, retry at next intval.");
+        DBG_ERR("%s.", "Initiate CURL failed, retry at next intval");
         fclose(fp);
         return -1;
     }
@@ -95,7 +96,7 @@ static int do_curl(const cheer_ctx_t *ctx, char *filename)
 int uld_init(void)
 {
     if (curl_global_init(CURL_GLOBAL_NOTHING) != CURLE_OK) {
-        DBG_ERR("Initiate global curl failed, retry at next intval.");
+        DBG_ERR("%s.", "Initiate global curl failed, retry at next intval");
         return -1;
     }
 

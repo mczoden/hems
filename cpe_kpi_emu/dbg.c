@@ -10,21 +10,21 @@ void dbg(unsigned char lvl, const char *fmt, ...)
 {
     va_list arg;
     time_t t_now = NULL;
-    struct tm tm_now = { 0 };
+    struct tm *tm_now = NULL;
 
     if ((dbg_lvl & lvl) == 0) {
         return;
     }
 
     t_now = time(NULL);
-    localtime_r(&t_now, &tm_now);
+    tm_now = localtime(&t_now);
     fprintf(stderr, "[%04d%02d%02d %02d:%02d:%02d] ",
-            tm_now.tm_year + 1900,
-            tm_now.tm_mon + 1,
-            tm_now.tm_mday,
-            tm_now.tm_hour,
-            tm_now.tm_min,
-            tm_now.tm_sec);
+            tm_now->tm_year + 1900,
+            tm_now->tm_mon + 1,
+            tm_now->tm_mday,
+            tm_now->tm_hour,
+            tm_now->tm_min,
+            tm_now->tm_sec);
 
     switch (lvl) {
     case LVL_PNC:
@@ -57,8 +57,8 @@ void dbg(unsigned char lvl, const char *fmt, ...)
 int set_dbg_lvl(int lvl)
 {
     if (lvl < 0) {
-        DBG_ERR("Invalid debug level specified,"
-                " keep default: panic, error & info.");
+        DBG_ERR("%s.", "Invalid debug level specified,"
+                " keep default: panic, error & info");
         return -1;
     }
 
