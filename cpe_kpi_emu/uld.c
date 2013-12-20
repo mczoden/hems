@@ -35,10 +35,11 @@ static int get_proto_by_url(const char *url)
 
 static int do_curl(const cheer_ctx_t *ctx, char *filename)
 {
-    int proto = 0;
+    int proto = 0, ret = 0;
     char *p = NULL;
     FILE *fp = NULL;
     CURL *curl = NULL;
+    CURLcode code = CURLE_OK;
     char url[256] = { 0 };
     static char err_buf[CURL_ERROR_SIZE] = { 0 };
 
@@ -80,15 +81,30 @@ static int do_curl(const cheer_ctx_t *ctx, char *filename)
     curl_easy_setopt(curl, CURLOPT_READDATA, fp);
     curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, err_buf);
 
-    if (curl_easy_perform(curl) != CURLE_OK) {
-        DBG_ERR("%s", err_buf);
-        curl_easy_cleanup(curl);
+    code = curl_easy_perform(curl);
+    fclose(fp);
+    if (code != CURLE_OK) {
+        DBG_ERR("%s.", err_buf);
+        ret = -1;
+    }
+    curl_easy_cleanup(curl);
+
+    return ret;
+}
+
+int uld_init(void)
+{
+    if (curl_global_init(CURL_GLOBAL_NOTHING) != CURLE_OK) {
+        DBG_ERR("Initiate global curl failed, retry at next intval.");
         return -1;
     }
 
-    curl_easy_cleanup(curl);
-
     return 0;
+}
+
+void uld_deinit(void)
+{
+    curl_global_cleanup();
 }
 
 int uld(const cheer_ctx_t *ctx)

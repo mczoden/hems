@@ -77,7 +77,7 @@ static int parser_cfg(cheer_ctx_t *ctx,
             ctx->need_bak = false;
             break;
         default:
-            DBG_ERR("need_bak = <Y|y|N|n>");
+            DBG_ERR("%s LINE %u: need_bak = <Y|y|N|n>", ctx->cfg, line_no);
             break;
         }
     } else if (strncasecmp(name, "bak_dir", strlen("bak_dir")) == 0) {
@@ -119,7 +119,7 @@ int read_cfg(cheer_ctx_t *ctx, const char *filename)
         errno = 0;
         if ((len = getline(&line, &len, fp)) == -1) {
             if (errno != 0) {
-                fprintf(stderr, "%s\n", strerror(errno));
+                DBG_ERR("Invoke getline failed: %s.", strerror(errno));
             }
             if (line != NULL) {
                 free(line);

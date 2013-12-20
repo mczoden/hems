@@ -25,7 +25,7 @@ static pthread_mutex_t mtx_uld = PTHREAD_MUTEX_INITIALIZER;
 static pthread_t tid_gen = 0;
 static pthread_t tid_uld = 0;
 
-static void print_usage(char *argv0)
+static void print_usage(const char *argv0)
 {
     printf("Usage: %s [OPTIONS]\n", argv0);
 
@@ -168,6 +168,7 @@ static void sig_hdl(int sig)
      * Wait pthread be cancled!
      */
     sleep(1);
+    uld_deinit();
 
     exit(0);
 }
@@ -231,6 +232,10 @@ int main(int argc, char *argv[])
 
     if (time_init(&ctx) != 0) {
         DBG_PNC("Initiate time failed, exit.");
+        exit(EXIT_FAILURE);
+    }
+
+    if (uld_init() != 0) {
         exit(EXIT_FAILURE);
     }
 

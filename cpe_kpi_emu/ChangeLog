@@ -1,3 +1,8 @@
+2013-12-20 v2.0.1.8:
+	* cfg:		[FUN] Modify some log.
+	* uld:		[BUG] Forget to close fp.
+	* uld:		[BUG] Mem leak, invoke curl_global_{init,cleanup} to resolve.
+
 2013-12-17 v2.0.0.7:
 	* cheer:	[TOP] Rename program name cpe_kpi_emu -> cheer.
 	* main:		[FUN] Remove -l para, debug level set in config file.
