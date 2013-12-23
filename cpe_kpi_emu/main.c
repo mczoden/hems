@@ -135,29 +135,21 @@ static bool permit_to_run(cheer_ctx_t *ctx)
 
 static int time_init(cheer_ctx_t *ctx)
 {
-#if 0
-    /**
-     * TODO:
-     * Optimize timezone calculation.
-     */
-    struct tm tm = { 0 };
+    struct tm *tm = NULL;
     long int gmt_h = 0, gmt_m = 0;
-#endif
 
     ctx->t_beg_pro = time(NULL);
+    tm = localtime(&(ctx->t_beg_pro));
 
-#if 0
-    localtime_r(&ctx->t_beg_pro, &tm);
 #ifdef __USE_BSD
-    gmt_h = tm.tm_gmtoff / 3600;
-    gmt_m = abs((tm.tm_gmtoff - gmt_h * 3600) / 60);
+    gmt_h = tm->tm_gmtoff / 3600;
+    gmt_m = abs((tm->tm_gmtoff - gmt_h * 3600) / 60);
 #else
-    gmt_h = tm.__tm_gmtoff / 3600;
-    gmt_m = abs((tm.__tm_gmtoff - gmt_h * 3600) / 60);
+    gmt_h = tm->__tm_gmtoff / 3600;
+    gmt_m = abs((tm->__tm_gmtoff - gmt_h * 3600) / 60);
 #endif
     ctx->tz.h = gmt_h;
     ctx->tz.m = gmt_m;
-#endif
 
     return 0;
 }
