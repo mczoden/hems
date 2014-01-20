@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <time.h>
+#include <string.h>
 
 #include "dbg.h"
 
@@ -10,21 +11,21 @@ void dbg(unsigned char lvl, const char *fmt, ...)
 {
     va_list arg;
     time_t t_now = NULL;
-    struct tm *tm_now = NULL;
+    struct tm tm_now;
 
     if ((dbg_lvl & lvl) == 0) {
         return;
     }
 
     t_now = time(NULL);
-    tm_now = localtime(&t_now);
+    memcpy(&tm_now, localtime(&t_now), sizeof(tm_now));
     fprintf(stderr, "[%04d%02d%02d %02d:%02d:%02d] ",
-            tm_now->tm_year + 1900,
-            tm_now->tm_mon + 1,
-            tm_now->tm_mday,
-            tm_now->tm_hour,
-            tm_now->tm_min,
-            tm_now->tm_sec);
+            tm_now.tm_year + 1900,
+            tm_now.tm_mon + 1,
+            tm_now.tm_mday,
+            tm_now.tm_hour,
+            tm_now.tm_min,
+            tm_now.tm_sec);
 
     switch (lvl) {
     case LVL_PNC:

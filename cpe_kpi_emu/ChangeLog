@@ -1,11 +1,16 @@
+2014-01-20 v2.0.4.11:
+    * gen:      [FUN] Use struct table to store kpi.
+    * gen:      [BUG] Begin/End time.
+    * cheer:    [BUG] localtime() thread safety.
+
 2013-12-23 v2.0.3.10:
-    * main:		[FUN] Get timezone from struct tm.
+    * main:     [FUN] Get timezone from struct tm.
 
 2013-12-20 v2.0.2.9:
-    * cheer:	Compile with -std=c99.
+    * cheer:    Compile with -std=c99.
 
 2013-12-20 v2.0.1.8:
-    * cfg:		[FUN] Modify some log.
+    * cfg:      [FUN] Modify some log.
     * uld:      [BUG] Forget to close fp.
     * uld:      [BUG] Mem leak, invoke curl_global_{init,cleanup} to resolve.
 
@@ -50,5 +55,5 @@
     * dbg.h:    Initial version.
 
 2013-12-11 v0.0.0.1:
-    * main.c:    Initial version.
-    * Makefile:  Initial version.
+    * main.c:   Initial version.
+    * Makefile: Initial version.

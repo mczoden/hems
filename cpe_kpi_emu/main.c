@@ -135,18 +135,18 @@ static bool permit_to_run(cheer_ctx_t *ctx)
 
 static int time_init(cheer_ctx_t *ctx)
 {
-    struct tm *tm = NULL;
+    struct tm tm_beg;
     long int gmt_h = 0, gmt_m = 0;
 
     ctx->t_beg_pro = time(NULL);
-    tm = localtime(&(ctx->t_beg_pro));
+    memcpy(&tm_beg, localtime(&(ctx->t_beg_pro)), sizeof(tm_beg));
 
 #ifdef __USE_BSD
-    gmt_h = tm->tm_gmtoff / 3600;
-    gmt_m = abs((tm->tm_gmtoff - gmt_h * 3600) / 60);
+    gmt_h = tm_beg.tm_gmtoff / 3600;
+    gmt_m = abs((tm_beg.tm_gmtoff - gmt_h * 3600) / 60);
 #else
-    gmt_h = tm->__tm_gmtoff / 3600;
-    gmt_m = abs((tm->__tm_gmtoff - gmt_h * 3600) / 60);
+    gmt_h = tm_beg.__tm_gmtoff / 3600;
+    gmt_m = abs((tm_beg.__tm_gmtoff - gmt_h * 3600) / 60);
 #endif
     ctx->tz.h = gmt_h;
     ctx->tz.m = gmt_m;
