@@ -1,3 +1,6 @@
+2014-03-19 v2.0.5.12:
+    * cheer:    [STX] Use 8 spaces to indent uncompleted statement.
+
 2014-01-20 v2.0.4.11:
     * gen:      [FUN] Use struct table to store kpi.
     * gen:      [BUG] Begin/End time.

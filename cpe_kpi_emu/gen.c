@@ -139,19 +139,19 @@ int gen(const cheer_ctx_t *ctx)
     memcpy(&tm_end, localtime(&t_end), sizeof(tm_end));
 
     snprintf(filename, sizeof(filename),
-             "A%04d%02d%02d.%02d%02d%+03d%02d-%02d%02d%+03d%02d_%s",
-             tm_beg.tm_year + 1900,
-             tm_beg.tm_mon + 1,
-             tm_beg.tm_mday,
-             tm_beg.tm_hour,
-             tm_beg.tm_min,
-             ctx->tz.h,
-             ctx->tz.m,
-             tm_end.tm_hour,
-             tm_end.tm_min,
-             ctx->tz.h,
-             ctx->tz.m,
-             ctx->sn);
+            "A%04d%02d%02d.%02d%02d%+03d%02d-%02d%02d%+03d%02d_%s",
+            tm_beg.tm_year + 1900,
+            tm_beg.tm_mon + 1,
+            tm_beg.tm_mday,
+            tm_beg.tm_hour,
+            tm_beg.tm_min,
+            ctx->tz.h,
+            ctx->tz.m,
+            tm_end.tm_hour,
+            tm_end.tm_min,
+            ctx->tz.h,
+            ctx->tz.m,
+            ctx->sn);
 
     if ((fp = fopen(filename, "w")) == NULL) {
         DBG_ERR("Open file %s failed: %s.", filename, strerror(errno));

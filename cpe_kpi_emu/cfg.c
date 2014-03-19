@@ -54,7 +54,7 @@ static int split_cfg_line(char *line, char **name, char **value)
 }
 
 static int parser_cfg(cheer_ctx_t *ctx,
-                      const char *name, const char *value, size_t line_no)
+        const char *name, const char *value, size_t line_no)
 {
     if (strncmp(name, "sn", strlen("sn")) == 0) {
         strncpy(ctx->sn, value, sizeof(ctx->sn) - 1);

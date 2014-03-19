@@ -126,13 +126,13 @@ int uld(const cheer_ctx_t *ctx)
 
     while ((ent = readdir(dp)) != NULL) {
         if (sscanf(ent->d_name,
-                   "A%8[0-9].%4[0-9]%*[^-]-%4[0-9]%*[^_]_%s",
-                   date, start_time, end_time, sn) == 4) {
+                    "A%8[0-9].%4[0-9]%*[^-]-%4[0-9]%*[^_]_%s",
+                    date, start_time, end_time, sn) == 4) {
             if (do_curl(ctx, ent->d_name) == 0) {
                 DBG_INF("Upload kpi file %s successfully.", ent->d_name);
                 if (ctx->need_bak) {
                     snprintf(bak_file, sizeof(bak_file), "%s/%s",
-                             ctx->bak_dir, ent->d_name);
+                            ctx->bak_dir, ent->d_name);
                     rename(ent->d_name, bak_file);
                 } else {
                     unlink(ent->d_name);
