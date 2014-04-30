@@ -10,7 +10,7 @@ static unsigned char dbg_lvl = LVL_PNC | LVL_ERR | LVL_INF;
 void dbg(unsigned char lvl, const char *fmt, ...)
 {
     va_list arg;
-    time_t t_now = NULL;
+    time_t t_now = 0;
     struct tm tm_now;
 
     if ((dbg_lvl & lvl) == 0) {
