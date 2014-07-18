@@ -212,6 +212,7 @@ int main(int argc, char *argv[])
     pthread_attr_t attr;
     bool has_gen = false;
     struct timeval tv = { 0 };
+    int err;
 
     if (parser_para(&ctx, argc, argv) != 0) {
         DBG_PNC("%s.", "Parser parameters failed, exit");
@@ -248,8 +249,9 @@ int main(int argc, char *argv[])
 
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-    if (pthread_create(&tid_uld, &attr, uld_thread_hdl, (void *)&ctx) != 0) {
-        DBG_PNC("Create upload pthread failed: %s.", strerror(errno));
+    err = pthread_create(&tid_uld, &attr, uld_thread_hdl, (void *)&ctx);
+    if (err != 0) {
+        DBG_PNC("Create upload pthread failed: %s.", strerror(err));
         pthread_mutex_destroy(&mtx_gen);
         pthread_mutex_destroy(&mtx_uld);
         return -1;
@@ -257,8 +259,9 @@ int main(int argc, char *argv[])
 
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-    if (pthread_create(&tid_gen, &attr, gen_thread_hdl, (void *)&ctx) != 0) {
-        DBG_PNC("Create generate pthread failed: %s.", strerror(errno));
+    err = pthread_create(&tid_gen, &attr, gen_thread_hdl, (void *)&ctx);
+    if (err != 0) {
+        DBG_PNC("Create generate pthread failed: %s.", strerror(err));
         pthread_cancel(tid_uld);
         sleep(1);
         pthread_mutex_destroy(&mtx_gen);
